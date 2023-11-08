@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "977614939982",
+    "project_id": "signinmas-9f718",
+    "storage_bucket": "signinmas-9f718.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:977614939982:android:7143f391cf18f7e9df601f",
+        "android_client_info": {
+          "package_name": "com.signinmaster"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "977614939982-ois08hf5s9625hsnp1lj03fl6f316ata.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.signinmaster",
+            "certificate_hash": "6aa43fbca84b3cd7fbb1091934fe3793dda5420c"
+          }
+        },
+        {
+          "client_id": "977614939982-nihf7qkmq6qksv5v5mduhmnnjrt2aq9f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEGPaSDlGYlMvCUls-XsfIoYYfQWbTGJE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "977614939982-nihf7qkmq6qksv5v5mduhmnnjrt2aq9f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
