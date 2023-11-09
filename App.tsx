@@ -8,6 +8,7 @@
 import React, {useState} from 'react';
 import type {PropsWithChildren} from 'react';
 import {
+  Pressable,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -22,6 +23,12 @@ import auth from '@react-native-firebase/auth';
 
 import {GoogleSignin} from '@react-native-community/google-signin';
 import {Button} from 'react-native';
+import {
+  KakaoOAuthToken,
+  login,
+  getProfile as getKakaoProfile,
+  shippingAddresses,
+} from '@react-native-seoul/kakao-login';
 
 GoogleSignin.configure({
   webClientId:
@@ -33,10 +40,12 @@ function GoogleSignIns() {
     email: '',
     name: '',
   });
+  const [kakaoToken, setKakaoToken] = useState<any>();
   const [idToken, setIdToken] = useState('');
+
   async function onGoogleButtonPress() {
     await GoogleSignin.hasPlayServices();
-    const userInfo = await GoogleSignin.signIn();
+    await GoogleSignin.signIn();
     const {idToken} = await GoogleSignin.getTokens();
     setIdToken(idToken);
     // Create a Google credential with the token
@@ -52,8 +61,31 @@ function GoogleSignIns() {
     // Sign-in the user with the credential
     return loggedInwithGoogle;
   }
+
+  const signInWithKakao = async (): Promise<void> => {
+    const token: any = await login();
+    setKakaoToken(token.idToken);
+
+    const googleCredential = auth.OIDCAuthProvider.credential(
+      'kakao',
+      token.idToken,
+    );
+
+    const loggedInwithGoogle: any = await auth().signInWithCredential(
+      googleCredential,
+    );
+
+    return loggedInwithGoogle;
+  };
   return (
     <>
+      <Button
+        title="Kakao Login"
+        onPress={() => {
+          signInWithKakao();
+        }}
+      />
+
       <Button
         title="Google Sign-In"
         onPress={() =>
@@ -62,11 +94,20 @@ function GoogleSignIns() {
           )
         }
       />
-      <Text>ID TOKEN : {idToken}</Text>
-      <Text>
-        {' '}
-        {'\n'} Successfully Signed IN : {JSON.stringify(signed)}
-      </Text>
+      {idToken && <Text>ID TOKEN : {idToken}</Text>}
+      {signed.email !== '' && (
+        <Text>
+          {' '}
+          {'\n'} Successfully Signed IN : {JSON.stringify(signed)}
+          {'\n'}
+        </Text>
+      )}
+      {kakaoToken && (
+        <Text>
+          {'\n'}
+          Kakao Token :{JSON.stringify(kakaoToken)}
+        </Text>
+      )}
     </>
   );
 }

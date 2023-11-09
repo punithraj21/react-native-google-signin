@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SignInMaster</string>
+    <string name="kakao_app_key">357f486c8e5d4973276751667955f414</string>
 </resources>
