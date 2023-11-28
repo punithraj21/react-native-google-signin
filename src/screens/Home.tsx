@@ -1,44 +1,44 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { ScrollView, View, Text, TextInput, StyleSheet } from 'react-native';
-import useLocalStorageData from '../hooks/userAuth';
-import firestore from '@react-native-firebase/firestore';
-import { Alert, Platform, BackHandler, RefreshControl } from 'react-native';
-import sendToast from '../components/Toast';
-import CustomButton from '../components/CustomButton';
-import Card from '../components/Card';
-import LinearGradient from 'react-native-linear-gradient';
+import React, { useState, useCallback, useEffect, useRef } from "react";
+import { ScrollView, View, Text, TextInput, StyleSheet } from "react-native";
+import useLocalStorageData from "../hooks/userAuth";
+import firestore from "@react-native-firebase/firestore";
+import { Alert, Platform, BackHandler, RefreshControl } from "react-native";
+import sendToast from "../components/Toast";
+import CustomButton from "../components/CustomButton";
+import Card from "../components/Card";
+import LinearGradient from "react-native-linear-gradient";
 
 function DetailsScreen(props: any) {
   const { clearUserData, getLocalData } = useLocalStorageData();
-  const [signed, setSignIn] = useState<any>('');
-  const [value, onChangeText] = useState<any>('');
-  const [notes, setNotes] = useState<any>('');
+  const [signed, setSignIn] = useState<any>("");
+  const [value, onChangeText] = useState<any>("");
+  const [notes, setNotes] = useState<any>("");
   const lastBackPressedTime = useRef(0);
 
   const saveNotes = async () => {
     if (value.length < 1) {
-      sendToast({ type: 'info', text: 'Your note is Empty!' });
+      sendToast({ type: "info", text: "Your note is Empty!" });
       return;
     }
     try {
-      const countersCollection = firestore().collection('counters');
+      const countersCollection = firestore().collection("counters");
 
       async function getNextId() {
-        const counterDoc = await countersCollection.doc('notesCounter').get();
+        const counterDoc = await countersCollection.doc("notesCounter").get();
 
         if (!counterDoc.exists) {
-          await countersCollection.doc('notesCounter').set({ value: 1 });
+          await countersCollection.doc("notesCounter").set({ value: 1 });
           return 1;
         }
 
         const nextId = counterDoc?.data()?.value + 1;
-        await countersCollection.doc('notesCounter').update({ value: nextId });
+        await countersCollection.doc("notesCounter").update({ value: nextId });
 
         return nextId;
       }
 
       const nextId = await getNextId();
-      const newNoteRef = await firestore().collection('Notes').add({
+      const newNoteRef = await firestore().collection("Notes").add({
         id: nextId,
         data: value,
         user: signed.email,
@@ -48,13 +48,13 @@ function DetailsScreen(props: any) {
       const newNoteSnapshot = await newNoteRef.get();
       const newNoteData = newNoteSnapshot.data();
 
-      setNotes((prevNotes: any) => [...prevNotes, newNoteData]);
+      setNotes((prevNotes: any) => [newNoteData, ...prevNotes]);
 
-      sendToast({ type: 'info', text: 'Note added successfully!' });
-      onChangeText('');
+      sendToast({ type: "info", text: "Note added successfully!" });
+      onChangeText("");
     } catch (error) {
-      console.error('Error adding note:', error);
-      Alert.alert('Error', 'Failed to add note. Please try again.');
+      console.error("Error adding note:", error);
+      Alert.alert("Error", "Failed to add note. Please try again.");
     }
   };
 
@@ -62,26 +62,26 @@ function DetailsScreen(props: any) {
     const user = await getLocalData();
 
     const notes = await firestore()
-      .collection('Notes')
-      .where('user', '==', user.email)
-      .orderBy('createdAt', 'desc')
+      .collection("Notes")
+      .where("user", "==", user.email)
+      .orderBy("createdAt", "desc")
       .get();
 
     const finalNotes = notes.docs.map(doc => doc.data());
     setNotes(finalNotes);
     setSignIn(user);
     if (!user) {
-      props.navigation.navigate('Login');
+      props.navigation.navigate("Login");
     }
   };
 
   useEffect(() => {
     fetchData();
-    if (Platform.OS === 'android') {
-      BackHandler.addEventListener('hardwareBackPress', HandleBackPressed);
+    if (Platform.OS === "android") {
+      BackHandler.addEventListener("hardwareBackPress", HandleBackPressed);
 
       return () => {
-        BackHandler.removeEventListener('hardwareBackPress', HandleBackPressed);
+        BackHandler.removeEventListener("hardwareBackPress", HandleBackPressed);
       };
     }
   }, [getLocalData, props.navigation]);
@@ -93,7 +93,7 @@ function DetailsScreen(props: any) {
     if (timeDifference < 2000) {
       BackHandler.exitApp();
     } else {
-      sendToast({ type: 'info', text: 'Press again to close the app!' });
+      sendToast({ type: "info", text: "Press again to close the app!" });
     }
 
     lastBackPressedTime.current = currentTime;
@@ -103,7 +103,7 @@ function DetailsScreen(props: any) {
   const Logout = useCallback(async () => {
     await clearUserData();
     setSignIn(undefined);
-    props.navigation.navigate('Login');
+    props.navigation.navigate("Login");
   }, []);
   const [refreshing, setRefreshing] = React.useState(false);
 
@@ -117,7 +117,7 @@ function DetailsScreen(props: any) {
 
   return (
     <LinearGradient
-      colors={['#f64f59', '#c471ed', '#12c2e9']}
+      colors={["#f64f59", "#c471ed", "#12c2e9"]}
       style={{
         flex: 1,
         padding: 16,
@@ -130,13 +130,13 @@ function DetailsScreen(props: any) {
         {signed && (
           <>
             <Text style={styles.text}>
-              {'\n'}
+              {"\n"}
               <Text style={styles.bold}>Hi </Text>
               {`${
-                signed?.email === 'anuroopa910@gmail.com'
-                  ? 'Maharani (Baby)'
-                  : signed?.email === 'punithraj.tcs21@gmail.com'
-                  ? 'Bangaaru'
+                signed?.email === "anuroopa910@gmail.com"
+                  ? "Maharani (Baby)"
+                  : signed?.email === "punithraj.tcs21@gmail.com"
+                  ? "Bangaaru"
                   : signed.name
               }`}
             </Text>
@@ -158,7 +158,7 @@ function DetailsScreen(props: any) {
         placeholderTextColor="#777"
         style={[
           styles.textArea,
-          { height: Math.max(50, value.split('\n').length * 25) },
+          { height: Math.max(50, value.split("\n").length * 25) },
         ]}
         multiline
         numberOfLines={4}
@@ -187,24 +187,24 @@ const styles = StyleSheet.create({
     padding: 10,
     borderWidth: 1,
     borderRadius: 8,
-    borderColor: '#ccc',
-    backgroundColor: '#fff',
+    borderColor: "#ccc",
+    backgroundColor: "#fff",
     fontSize: 16,
-    color: '#333',
+    color: "#333",
   },
   textArea: {
     margin: 12,
     padding: 10,
     borderWidth: 0.5,
     borderRadius: 8,
-    borderColor: '#F6E2E1',
-    backgroundColor: '#F6E2E1',
+    borderColor: "#F6E2E1",
+    backgroundColor: "#F6E2E1",
     fontSize: 16,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     margin: 12,
   },
   text: {
@@ -215,20 +215,20 @@ const styles = StyleSheet.create({
   bold: {
     padding: 10,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   cardContainer: {
     marginHorizontal: 12,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
   },
   button: {
     borderRadius: 8,
     padding: 20,
     margin: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });
 
