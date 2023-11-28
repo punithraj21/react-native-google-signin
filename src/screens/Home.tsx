@@ -1,19 +1,22 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
-import { ScrollView, View, Text, TextInput, StyleSheet } from "react-native";
-import useLocalStorageData from "../hooks/userAuth";
+import { useNavigation } from "@react-navigation/native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+
 import firestore from "@react-native-firebase/firestore";
-import { Alert, Platform, BackHandler, RefreshControl } from "react-native";
-import sendToast from "../components/Toast";
-import CustomButton from "../components/CustomButton";
-import Card from "../components/Card";
+import { Alert, BackHandler, Image, Platform, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
+import Card from "../components/Card";
+import CustomButton from "../components/CustomButton";
+import sendToast from "../components/Toast";
+import useLocalStorageData from "../hooks/userAuth";
 
 function DetailsScreen(props: any) {
   const { clearUserData, getLocalData } = useLocalStorageData();
+  const navigation = useNavigation();
   const [signed, setSignIn] = useState<any>("");
   const [value, onChangeText] = useState<any>("");
   const [notes, setNotes] = useState<any>("");
   const lastBackPressedTime = useRef(0);
+  const [refreshing, setRefreshing] = React.useState(false);
 
   const saveNotes = async () => {
     if (value.length < 1) {
@@ -105,7 +108,6 @@ function DetailsScreen(props: any) {
     setSignIn(undefined);
     props.navigation.navigate("Login");
   }, []);
-  const [refreshing, setRefreshing] = React.useState(false);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -115,9 +117,28 @@ function DetailsScreen(props: any) {
     }, 2000);
   }, []);
 
+  React.useLayoutEffect(() => {
+    const updateNavigationOptions = () => {
+      if (signed?.photo) {
+        navigation.setOptions({
+          headerRight: () => (
+            <TouchableOpacity onPress={() => props.navigation.navigate("UserDetail")}>
+              <Image
+                style={{ width: 40, height: 40, borderRadius: 20 }}
+                source={{ uri: signed.photo }}
+              />
+            </TouchableOpacity>
+          ),
+        });
+      }
+    };
+
+    updateNavigationOptions();
+  }, [navigation, signed]);
+
   return (
     <LinearGradient
-      colors={["#f64f59", "#c471ed", "#12c2e9"]}
+      colors={["#fff", "#DAF9FF", "#BEF4FF"]}
       style={{
         flex: 1,
         padding: 16,
@@ -132,13 +153,7 @@ function DetailsScreen(props: any) {
             <Text style={styles.text}>
               {"\n"}
               <Text style={styles.bold}>Hi </Text>
-              {`${
-                signed?.email === "anuroopa910@gmail.com"
-                  ? "Maharani (Baby)"
-                  : signed?.email === "punithraj.tcs21@gmail.com"
-                  ? "Bangaaru"
-                  : signed.name
-              }`}
+              {signed?.name}
             </Text>
             <Text style={styles.text}>
               <Text style={styles.bold}>All your notes from </Text>
@@ -155,7 +170,7 @@ function DetailsScreen(props: any) {
         )}
       </ScrollView>
       <TextInput
-        placeholderTextColor="#777"
+        placeholderTextColor="#000"
         style={[
           styles.textArea,
           { height: Math.max(50, value.split("\n").length * 25) },
@@ -166,14 +181,18 @@ function DetailsScreen(props: any) {
         value={value}
         placeholder="We are happy if you write!"
       />
-      <View style={styles.buttonContainer}>
-        <CustomButton title="Logout" onPress={Logout} color="#E85048" />
-        <CustomButton
-          title="Save"
-          onPress={() => saveNotes()}
-          color="#2FB031"
-        />
-      </View>
+      {value && (
+        <>
+          <View style={styles.buttonContainer}>
+            <CustomButton
+              title="Save"
+              onPress={() => saveNotes()}
+              color="#2FB031"
+            />
+          </View>
+        </>
+      )}
+
     </LinearGradient>
   );
 }
@@ -198,9 +217,9 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderRadius: 8,
     borderColor: "#F6E2E1",
-    backgroundColor: "#F6E2E1",
+    backgroundColor: "#fff",
     fontSize: 16,
-    textAlignVertical: "top",
+    textAlignVertical: "center",
   },
   buttonContainer: {
     flexDirection: "row",
