@@ -6,6 +6,7 @@ import { Alert, Platform, BackHandler, RefreshControl } from 'react-native';
 import sendToast from '../components/Toast';
 import CustomButton from '../components/CustomButton';
 import Card from '../components/Card';
+import LinearGradient from 'react-native-linear-gradient';
 
 function DetailsScreen(props: any) {
   const { clearUserData, getLocalData } = useLocalStorageData();
@@ -15,6 +16,10 @@ function DetailsScreen(props: any) {
   const lastBackPressedTime = useRef(0);
 
   const saveNotes = async () => {
+    if (value.length < 1) {
+      sendToast({ type: 'info', text: 'Your note is Empty!' });
+      return;
+    }
     try {
       const countersCollection = firestore().collection('counters');
 
@@ -46,6 +51,7 @@ function DetailsScreen(props: any) {
       setNotes((prevNotes: any) => [...prevNotes, newNoteData]);
 
       sendToast({ type: 'info', text: 'Note added successfully!' });
+      onChangeText('');
     } catch (error) {
       console.error('Error adding note:', error);
       Alert.alert('Error', 'Failed to add note. Please try again.');
@@ -110,43 +116,65 @@ function DetailsScreen(props: any) {
   }, []);
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.scrollContainer}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }>
-      {signed && (
-        <>
-          <Text style={styles.text}>
-            {'\n'}
-            <Text style={styles.bold}>Hi </Text>
-            {signed?.name}
-          </Text>
-          <Text style={styles.text}>
-            <Text style={styles.bold}>All your notes from </Text>
-            {signed?.email}
-          </Text>
-        </>
-      )}
-      {notes && (
-        <View style={styles.cardContainer}>
-          {notes?.map((note: any, index: any) => (
-            <Card key={index} data={note.data} />
-          ))}
-        </View>
-      )}
+    <LinearGradient
+      colors={['#f64f59', '#c471ed', '#12c2e9']}
+      style={{
+        flex: 1,
+        padding: 16,
+      }}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
+        {signed && (
+          <>
+            <Text style={styles.text}>
+              {'\n'}
+              <Text style={styles.bold}>Hi </Text>
+              {`${
+                signed?.email === 'anuroopa910@gmail.com'
+                  ? 'Maharani (Baby)'
+                  : signed?.email === 'punithraj.tcs21@gmail.com'
+                  ? 'Bangaaru'
+                  : signed.name
+              }`}
+            </Text>
+            <Text style={styles.text}>
+              <Text style={styles.bold}>All your notes from </Text>
+              {signed?.email}
+            </Text>
+          </>
+        )}
+        {notes && (
+          <View style={styles.cardContainer}>
+            {notes?.map((note: any, index: any) => (
+              <Card key={index} data={note} />
+            ))}
+          </View>
+        )}
+      </ScrollView>
       <TextInput
-        style={styles.textArea}
+        placeholderTextColor="#777"
+        style={[
+          styles.textArea,
+          { height: Math.max(50, value.split('\n').length * 25) },
+        ]}
         multiline
+        numberOfLines={4}
         onChangeText={text => onChangeText(text)}
         value={value}
         placeholder="We are happy if you write!"
       />
       <View style={styles.buttonContainer}>
-        <CustomButton title="Logout" onPress={Logout} color="red" />
-        <CustomButton title="Save" onPress={() => saveNotes()} color="green" />
+        <CustomButton title="Logout" onPress={Logout} color="#E85048" />
+        <CustomButton
+          title="Save"
+          onPress={() => saveNotes()}
+          color="#2FB031"
+        />
       </View>
-    </ScrollView>
+    </LinearGradient>
   );
 }
 
@@ -165,15 +193,13 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   textArea: {
-    height: 120,
     margin: 12,
     padding: 10,
     borderWidth: 0.5,
     borderRadius: 8,
-    borderColor: '#ccc',
-    backgroundColor: '#fff',
+    borderColor: '#F6E2E1',
+    backgroundColor: '#F6E2E1',
     fontSize: 16,
-    color: '#333',
     textAlignVertical: 'top',
   },
   buttonContainer: {
@@ -196,19 +222,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-  },
-  card: {
-    width: '30%',
-    height: 100,
-    marginVertical: 8,
-    borderRadius: 8,
-    backgroundColor: '#ECE8E7',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    padding: 10,
   },
   button: {
     borderRadius: 8,

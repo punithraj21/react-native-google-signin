@@ -1,3 +1,4 @@
+import { useNavigation } from "@react-navigation/native";
 import {
   ScrollView,
   View,
@@ -5,36 +6,35 @@ import {
   Button,
   TextInput,
   StyleSheet,
-} from 'react-native';
+  TouchableOpacity,
+} from "react-native";
 
-const Card = ({data}: any) => {
+const Card = (props: any) => {
+  const navigation = useNavigation();
+
+  const handlePress = () => {
+    console.log(props.data);
+    navigation.navigate("NotesDetail", {
+      noteData: props.data,
+    });
+  };
+
   return (
-    <View style={styles.card}>
-      <Text numberOfLines={4} ellipsizeMode="tail">
-        {data}
+    <TouchableOpacity style={styles.card} onPress={handlePress}>
+      <Text style={{ color: "#444444" }} numberOfLines={4} ellipsizeMode="tail">
+        {props.data.data}
       </Text>
-    </View>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    padding: 10,
-  },
   card: {
-    width: '48%',
+    width: "48%",
     height: 100,
     marginVertical: 8,
     borderRadius: 8,
-    backgroundColor: '#ECE8E7',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
+    backgroundColor: "#ffffff29",
     padding: 10,
   },
 });
