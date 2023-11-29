@@ -16,6 +16,7 @@ import {
 import Icon from "react-native-vector-icons/Feather";
 import { firebase } from "@react-native-firebase/firestore";
 import CustomButton from "../components/CustomButton";
+import sendToast from "../components/Toast";
 
 const NotesDetail = ({ route }: any) => {
   const { noteData } = route.params;
@@ -57,20 +58,18 @@ const NotesDetail = ({ route }: any) => {
 
   const updateFirebase = async () => {
     try {
-      const notesCollection = firebase.firestore().collection("notes");
+      const notesCollection = firebase.firestore().collection("Notes");
 
       const querySnapshot = await notesCollection
         .where("id", "==", noteData.id)
         .get();
 
-      // Update each matching document with the new data
       querySnapshot.forEach(async doc => {
         const noteDocument = notesCollection.doc(doc.id);
-        const resp = await noteDocument.update(editData);
-        console.log("resp: ", resp);
+        await noteDocument.update({ data: editData });
       });
 
-      console.log("Documents updated successfully");
+      sendToast("Documents updated successfully");
     } catch (error) {
       console.error("Error updating documents:", error);
     }
@@ -127,14 +126,6 @@ const NotesDetail = ({ route }: any) => {
             onChangeText={text => setEditData(text)}
             value={editData}
           />
-          {/* <Button
-            title="Confirm Edit"
-            onPress={() => {
-              console.log("Edited Data:", editData);
-              updateFirebase;
-              setModalVisible(false);
-            }}
-          /> */}
           <View style={styles.buttonContainer}>
             <CustomButton
               title="Cancel"
