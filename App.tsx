@@ -9,6 +9,7 @@ import Toast from "react-native-toast-message";
 import { View } from "react-native";
 import { Text } from "react-native";
 import NotesDetail from "./src/screens/NotesDetail";
+import UserDetail from "./src/screens/UserDetail";
 
 GoogleSignin.configure({
   webClientId:
@@ -46,15 +47,21 @@ function App(): JSX.Element {
     <>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen name="Login" component={HomeScreen} />
+          <Stack.Screen
+            name="Login"
+            component={HomeScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
           <Stack.Screen
             name="Home"
             options={{
               headerBackVisible: false,
-              headerTitleAlign: "center",
+              headerTitleAlign: "left",
               headerTitleStyle: { color: "#444444" },
               headerStyle: {
-                backgroundColor: "#f64f59",
+                backgroundColor: "#fff",
               },
               title: "My Library",
             }}
@@ -68,6 +75,15 @@ function App(): JSX.Element {
               headerTitleStyle: { color: "#444444" },
             }}
             component={NotesDetail}
+          />
+          <Stack.Screen
+            name="UserDetail"
+            options={{
+              title: "User Detail",
+              headerTitleAlign: "center",
+              headerTitleStyle: { color: "#444444" },
+            }}
+            component={UserDetail}
           />
         </Stack.Navigator>
       </NavigationContainer>

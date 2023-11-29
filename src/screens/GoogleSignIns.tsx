@@ -1,6 +1,8 @@
-import React, { useEffect, useCallback } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Text } from 'react-native';
+import React, { useCallback, useEffect } from 'react';
+
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import Icon from "react-native-vector-icons/AntDesign";
 import useGoogleLogin from '../hooks/useGoogleLogin';
 import useLocalStorageData from '../hooks/userAuth';
 
@@ -27,34 +29,49 @@ function GoogleSignIns(props: any) {
   }, [onGoogleButtonPress]);
 
   return (
-    <>
-      <Text
-        style={{
-          fontWeight: '400',
-          backgroundColor: '#FFFFFF',
-          borderRadius: 12,
-          padding: 12,
-          marginTop: 80,
-          margin: 40,
-          textAlign: 'center',
-          fontStyle: 'normal',
-        }}
-        onPress={onGoogleLogin}>
-        {'Sign in With Google'}
+    <LinearGradient colors={['#FFF', '#B8FF8630', '#B8FF86']} style={styles.main}>
+      <Text style={styles.text}>
+        {'"All your notes in one place"'}
       </Text>
-    </>
+      <View>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={onGoogleLogin}
+        >
+          <Icon name="google" size={20} color="#000" />
+          <Text style={{ color: 'black' }}>
+            {'Sign in With Google'}
+          </Text >
+        </TouchableOpacity>
+      </View>
+    </LinearGradient>
   );
 }
+
 const styles = StyleSheet.create({
   button: {
-    borderRadius: 0.5,
-    padding: 85,
-  },
-  buttonContainer: {
+    display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    margin: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 15,
+    fontWeight: '400',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 12,
+    marginHorizontal: 50,
   },
+  text: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#000',
+    textAlign: 'center',
+    marginBottom: 40,
+  },
+  main: {
+    flex: 1,
+    justifyContent: 'center',
+  }
 });
 
 export default GoogleSignIns;
