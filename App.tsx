@@ -10,6 +10,7 @@ import { View } from "react-native";
 import { Text } from "react-native";
 import NotesDetail from "./src/screens/NotesDetail";
 import UserDetail from "./src/screens/UserDetail";
+import { MenuProvider } from "react-native-popup-menu";
 
 GoogleSignin.configure({
   webClientId:
@@ -45,49 +46,51 @@ function App(): JSX.Element {
 
   return (
     <>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen
-            name="Login"
-            component={HomeScreen}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="Home"
-            options={{
-              headerBackVisible: false,
-              headerTitleAlign: "left",
-              headerTitleStyle: { color: "#444444" },
-              headerStyle: {
-                backgroundColor: "#fff",
-              },
-              title: "My Library",
-            }}
-            component={DetailsScreen}
-          />
-          <Stack.Screen
-            name="NotesDetail"
-            options={{
-              title: "Details",
-              headerTitleAlign: "center",
-              headerTitleStyle: { color: "#444444" },
-            }}
-            component={NotesDetail}
-          />
-          <Stack.Screen
-            name="UserDetail"
-            options={{
-              title: "User Detail",
-              headerTitleAlign: "center",
-              headerTitleStyle: { color: "#444444" },
-            }}
-            component={UserDetail}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-      <Toast config={toastConfig} />
+      <MenuProvider>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="Login">
+            <Stack.Screen
+              name="Login"
+              component={HomeScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="Home"
+              options={{
+                headerBackVisible: false,
+                headerTitleAlign: "left",
+                headerTitleStyle: { color: "#444444" },
+                headerStyle: {
+                  backgroundColor: "#fff",
+                },
+                title: "My Library",
+              }}
+              component={DetailsScreen}
+            />
+            <Stack.Screen
+              name="NotesDetail"
+              options={{
+                title: "Details",
+                headerTitleAlign: "center",
+                headerTitleStyle: { color: "#444444" },
+              }}
+              component={NotesDetail}
+            />
+            <Stack.Screen
+              name="UserDetail"
+              options={{
+                title: "User Detail",
+                headerTitleAlign: "center",
+                headerTitleStyle: { color: "#444444" },
+              }}
+              component={UserDetail}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+        <Toast config={toastConfig} />
+      </MenuProvider>
     </>
   );
 }
