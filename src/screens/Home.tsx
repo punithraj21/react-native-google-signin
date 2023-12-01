@@ -32,10 +32,6 @@ function DetailsScreen(props: any) {
   const [refreshing, setRefreshing] = React.useState(false);
 
   const saveNotes = async () => {
-    if (value.length < 1) {
-      sendToast({ type: "info", text: "Your note is Empty!" });
-      return;
-    }
     try {
       const countersCollection = firestore().collection("counters");
 
@@ -65,8 +61,12 @@ function DetailsScreen(props: any) {
       const newNoteData = newNoteSnapshot.data();
 
       setNotes((prevNotes: any) => [newNoteData, ...prevNotes]);
+      navigation.navigate("NotesDetail", {
+        noteData: newNoteData,
+        refreshScreen: refreshScreen,
+      });
 
-      sendToast({ type: "info", text: "Note added successfully!" });
+      // sendToast({ type: "info", text: "Note added successfully!" });
       onChangeText("");
     } catch (error) {
       console.error("Error adding note:", error);
@@ -195,7 +195,7 @@ function DetailsScreen(props: any) {
           </View>
         )}
       </ScrollView>
-      <TextInput
+      {/* <TextInput
         placeholderTextColor="#000"
         style={[
           styles.textArea,
@@ -217,7 +217,12 @@ function DetailsScreen(props: any) {
             />
           </View>
         </>
-      )}
+      )} */}
+      <TouchableOpacity
+        style={styles.floatingButton}
+        onPress={() => saveNotes()}>
+        <Text style={styles.buttonText}>+</Text>
+      </TouchableOpacity>
     </LinearGradient>
   );
 }
@@ -225,6 +230,23 @@ function DetailsScreen(props: any) {
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
+  },
+  buttonText: {
+    fontSize: 30,
+    color: "white",
+    marginBottom: 3,
+  },
+  floatingButton: {
+    position: "absolute",
+    right: 30,
+    bottom: 30,
+    width: 60,
+    height: 60,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#2FB031",
+    borderRadius: 30,
+    elevation: 5,
   },
   input: {
     margin: 12,

@@ -1526,6 +1526,11 @@
   dependencies:
     merge-options "^3.0.4"
 
+"@react-native-clipboard/clipboard@^1.12.1":
+  version "1.12.1"
+  resolved "https://registry.npmjs.org/@react-native-clipboard/clipboard/-/clipboard-1.12.1.tgz"
+  integrity sha512-+PNk8kflpGte0W1Nz61/Dp8gHTxyuRjkVyRYBawymSIGTDHCC/zOJSbig6kGIkD8MeaGHC2vGYQJyUyCrgVPBQ==
+
 "@react-native-community/cli-clean@11.3.7":
   version "11.3.7"
   resolved "https://registry.npmjs.org/@react-native-community/cli-clean/-/cli-clean-11.3.7.tgz"
@@ -3378,6 +3383,11 @@ escape-string-regexp@^4.0.0:
   resolved "https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-4.0.0.tgz"
   integrity sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==
 
+escape-string-regexp@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-2.0.0.tgz"
+  integrity sha512-UpzcLCXolUWcNu5HtVMHYdXJjArjsF9C0aNnquZYY4uW/Vu0miy5YoWvbV345HauVvcAUnpRuhMMcqTcGOY2+w==
+
 eslint-config-prettier@^8.5.0:
   version "8.10.0"
   resolved "https://registry.npmjs.org/eslint-config-prettier/-/eslint-config-prettier-8.10.0.tgz"
@@ -4087,7 +4097,7 @@ internal-slot@^1.0.5:
     hasown "^2.0.0"
     side-channel "^1.0.4"
 
-invariant@*, invariant@^2.2.4:
+invariant@*, invariant@^2.2.4, invariant@2.2.4:
   version "2.2.4"
   resolved "https://registry.npmjs.org/invariant/-/invariant-2.2.4.tgz"
   integrity sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==
@@ -6017,6 +6027,11 @@ react-native-linear-gradient@^2.8.3:
   resolved "https://registry.npmjs.org/react-native-linear-gradient/-/react-native-linear-gradient-2.8.3.tgz"
   integrity sha512-KflAXZcEg54PXkLyflaSZQ3PJp4uC4whM7nT/Uot9m0e/qxFV3p6uor1983D1YOBJbJN7rrWdqIjq0T42jOJyA==
 
+react-native-pell-rich-editor@^1.9.0:
+  version "1.9.0"
+  resolved "https://registry.npmjs.org/react-native-pell-rich-editor/-/react-native-pell-rich-editor-1.9.0.tgz"
+  integrity sha512-BKzlu++FySzPXrb5bczD8b/ZZJtfzcD4z7FvW7TrH+4OENEQtaIiEMfmb5N09Kv3YVJcfm8fut8Y+GLNAcCQHA==
+
 react-native-popup-menu@^0.16.1:
   version "0.16.1"
   resolved "https://registry.npmjs.org/react-native-popup-menu/-/react-native-popup-menu-0.16.1.tgz"
@@ -6078,7 +6093,15 @@ react-native-vector-icons@^10.0.2, react-native-vector-icons@>7.0.0:
     prop-types "^15.7.2"
     yargs "^16.1.1"
 
-react-native@*, "react-native@^0.0.0-0 || 0.60 - 0.72 || 1000.0.0", react-native@>=0.59.0, react-native@>=0.60.0, react-native@0.72.6:
+react-native-webview@^13.6.3, react-native-webview@>=7.5.2:
+  version "13.6.3"
+  resolved "https://registry.npmjs.org/react-native-webview/-/react-native-webview-13.6.3.tgz"
+  integrity sha512-IApO0JSj0uAWsBGKWagyfgDYoX29piiMYLmkHtRjKeL1rIVjLoR/bMe7KJ/0X47y86b//a6u3cYQtphyay+F2A==
+  dependencies:
+    escape-string-regexp "2.0.0"
+    invariant "2.2.4"
+
+react-native@*, "react-native@^0.0.0-0 || 0.60 - 0.72 || 1000.0.0", react-native@>=0.50.0, react-native@>=0.57.0, react-native@>=0.59.0, react-native@>=0.60.0, react-native@0.72.6:
   version "0.72.6"
   resolved "https://registry.npmjs.org/react-native/-/react-native-0.72.6.tgz"
   integrity sha512-RafPY2gM7mcrFySS8TL8x+TIO3q7oAlHpzEmC7Im6pmXni6n1AuufGaVh0Narbr1daxstw7yW7T9BKW5dpVc2A==
@@ -6142,7 +6165,7 @@ react-test-renderer@18.2.0:
     react-shallow-renderer "^16.15.0"
     scheduler "^0.23.0"
 
-react@*, "react@^16.0.0 || ^17.0.0 || ^18.0.0", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^17 || ^18", react@^18.2.0, react@>=16.8, react@>=17.0.0, react@18.2.0:
+react@*, "react@^16.0.0 || ^17.0.0 || ^18.0.0", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^17 || ^18", react@^18.2.0, react@>=16.0, react@>=16.8, react@>=17.0.0, react@18.2.0:
   version "18.2.0"
   resolved "https://registry.npmjs.org/react/-/react-18.2.0.tgz"
   integrity sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==
