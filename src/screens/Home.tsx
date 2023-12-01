@@ -2,12 +2,25 @@ import { useNavigation } from "@react-navigation/native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import firestore from "@react-native-firebase/firestore";
-import { Alert, BackHandler, Image, Platform, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  BackHandler,
+  Image,
+  Platform,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import Card from "../components/Card";
 import CustomButton from "../components/CustomButton";
 import sendToast from "../components/Toast";
 import useLocalStorageData from "../hooks/userAuth";
+import FastImage from "react-native-fast-image";
 
 function DetailsScreen(props: any) {
   const { clearUserData, getLocalData } = useLocalStorageData();
@@ -103,11 +116,19 @@ function DetailsScreen(props: any) {
     return true;
   };
 
-  const Logout = useCallback(async () => {
-    await clearUserData();
-    setSignIn(undefined);
-    props.navigation.navigate("Login");
+  const refreshScreen = useCallback(() => {
+    fetchData();
   }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      refreshScreen();
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [navigation, refreshScreen]);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -122,10 +143,15 @@ function DetailsScreen(props: any) {
       if (signed?.photo) {
         navigation.setOptions({
           headerRight: () => (
-            <TouchableOpacity onPress={() => props.navigation.navigate("UserDetail")}>
-              <Image
+            <TouchableOpacity
+              onPress={() => props.navigation.navigate("UserDetail")}>
+              <FastImage
                 style={{ width: 40, height: 40, borderRadius: 20 }}
-                source={{ uri: signed.photo }}
+                source={{
+                  uri: signed.photo,
+                  cache: FastImage.cacheControl.web,
+                }}
+                resizeMode={FastImage.resizeMode.contain}
               />
             </TouchableOpacity>
           ),
@@ -155,16 +181,16 @@ function DetailsScreen(props: any) {
               <Text style={styles.bold}>Hi </Text>
               {signed?.name}
             </Text>
-            <Text style={styles.text}>
+            {/* <Text style={styles.text}>
               <Text style={styles.bold}>All your notes from </Text>
               {signed?.email}
-            </Text>
+            </Text> */}
           </>
         )}
         {notes && (
           <View style={styles.cardContainer}>
             {notes?.map((note: any, index: any) => (
-              <Card key={index} data={note} />
+              <Card key={index} data={note} refreshScreen={refreshScreen} />
             ))}
           </View>
         )}
@@ -192,7 +218,6 @@ function DetailsScreen(props: any) {
           </View>
         </>
       )}
-
     </LinearGradient>
   );
 }

@@ -1,49 +1,60 @@
-import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
 
+import { firebase } from "@react-native-firebase/firestore";
 import {
-  Text,
-  View,
-  TouchableOpacity,
+  Alert,
   BackHandler,
   Platform,
-  Alert,
-  Modal,
+  Text,
   TextInput,
-  Button,
-  StyleSheet,
+  View,
 } from "react-native";
-import Icon from "react-native-vector-icons/Feather";
-import { firebase } from "@react-native-firebase/firestore";
-import CustomButton from "../components/CustomButton";
-import sendToast from "../components/Toast";
+import {
+  Menu,
+  MenuOption,
+  MenuOptions,
+  MenuTrigger,
+} from "react-native-popup-menu";
 
 const NotesDetail = ({ route }: any) => {
   const { noteData } = route.params;
-  console.log("noteData: ", noteData);
   const navigation = useNavigation();
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [editData, setEditData] = useState("");
+  const [editData, setEditData] = useState(noteData.data);
+  console.log("editData: ", editData);
 
-  const showEditDialog = () => {
-    setEditData(noteData.data);
-    setModalVisible(true);
+  const handleDelete = async () => {
+    try {
+      const notesCollection = firebase.firestore().collection("Notes");
+
+      const querySnapshot = await notesCollection
+        .where("id", "==", noteData.id)
+        .get();
+
+      querySnapshot.forEach(async doc => {
+        const noteDocument = notesCollection.doc(doc.id);
+        await noteDocument.delete();
+      });
+    } catch (error) {
+      console.error("Error updating documents:", error);
+    }
   };
 
   const handleEditPress = () => {
-    Alert.alert(
-      "Choose from Below!",
-      "You can select any option based on your choice",
-      [
-        {
-          text: "Cancel",
-          onPress: () => console.log("Cancelled"),
-          style: "cancel",
+    Alert.alert("Are you sure?", "Once you delete you can get it back.", [
+      {
+        text: "Cancel",
+        onPress: () => console.log("Cancelled"),
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        onPress: () => {
+          handleDelete();
+          handleBackPressed();
         },
-        { text: "Edit", onPress: showEditDialog },
-        { text: "Delete", onPress: () => console.log("Delete Pressed") },
-      ],
-    );
+      },
+    ]);
   };
 
   useEffect(() => {
@@ -56,7 +67,7 @@ const NotesDetail = ({ route }: any) => {
     }
   }, [navigation]);
 
-  const updateFirebase = async () => {
+  const updateFirebase = async (data :string) => {
     try {
       const notesCollection = firebase.firestore().collection("Notes");
 
@@ -66,16 +77,17 @@ const NotesDetail = ({ route }: any) => {
 
       querySnapshot.forEach(async doc => {
         const noteDocument = notesCollection.doc(doc.id);
-        await noteDocument.update({ data: editData });
+        await noteDocument.update({ data });
       });
 
-      sendToast("Documents updated successfully");
+      setEditData(data);
     } catch (error) {
       console.error("Error updating documents:", error);
     }
   };
   const handleBackPressed = () => {
     if (navigation.canGoBack()) {
+      route.params.refreshScreen();
       navigation.goBack();
       return true;
     }
@@ -85,81 +97,53 @@ const NotesDetail = ({ route }: any) => {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity onPress={handleEditPress}>
-          <Icon name="edit" size={20} color="#777" />
-        </TouchableOpacity>
+        <Menu>
+          <MenuTrigger
+            customStyles={{
+              triggerTouchable: {
+                borderRadius: 20,
+              },
+            }}>
+            <Text style={{ fontSize: 28, padding: 10 }}>⋮</Text>
+          </MenuTrigger>
+          <MenuOptions
+            customStyles={{
+              optionsContainer: {
+                marginTop: 50,
+                borderRadius: 10,
+              },
+            }}>
+            <MenuOption onSelect={() => handleEditPress()}>
+              <Text style={{ padding: 10, color: "black" }}>Delete</Text>
+            </MenuOption>
+            {/* <MenuOption onSelect={() => Alert.alert("Option 2")}>
+              <Text style={{ padding: 10, color: "black" }}>Option 2</Text>
+            </MenuOption> */}
+          </MenuOptions>
+        </Menu>
       ),
     });
   }, [navigation]);
 
   return (
     <View style={{ backgroundColor: "#fff", height: "100%" }}>
-      <Text style={{ fontSize: 25, margin: 20, padding: 20 }}>
+      <TextInput
+        multiline
+        onChangeText={async text => {
+          await updateFirebase(text);
+        }}
+        style={{
+          fontSize: 20,
+          margin: 10,
+          padding: 10,
+          height: "100%",
+          textAlignVertical: "top",
+          lineHeight: 30,
+        }}>
         {noteData.data}
-      </Text>
-
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isModalVisible}
-        onRequestClose={() => setModalVisible(false)}>
-        <View
-          style={{
-            backgroundColor: "#EFFFFE",
-            borderRadius: 12,
-            position: "absolute",
-            top: "42%",
-            right: "15%",
-            left: "15%",
-            bottom: "45%",
-            padding: 20,
-            justifyContent: "center",
-            borderColor: "gray",
-          }}>
-          <TextInput
-            multiline
-            numberOfLines={4}
-            style={[
-              styles.textArea,
-              { height: Math.max(50, editData.split("\n").length * 25) },
-            ]}
-            onChangeText={text => setEditData(text)}
-            value={editData}
-          />
-          <View style={styles.buttonContainer}>
-            <CustomButton
-              title="Cancel"
-              onPress={() => setModalVisible(false)}
-              color="red"
-            />
-            <CustomButton
-              title="Change"
-              onPress={() => updateFirebase()}
-              color="#2FB031"
-            />
-          </View>
-        </View>
-      </Modal>
+      </TextInput>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  textArea: {
-    marginTop: 10,
-    marginBottom: 10,
-    padding: 10,
-    borderWidth: 0.5,
-    borderRadius: 8,
-    borderColor: "#A5B6B5",
-    backgroundColor: "#EFFFFE",
-    fontSize: 16,
-    textAlignVertical: "top",
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-});
 
 export default NotesDetail;
