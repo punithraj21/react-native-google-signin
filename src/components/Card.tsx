@@ -1,13 +1,14 @@
 import { useNavigation } from "@react-navigation/native";
 import { get } from "lodash";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import WebView from "react-native-webview";
 
 const Card = (props: any) => {
   const navigation = useNavigation();
   const createdAt = get(props, "data.createdAt", "");
   const date = new Date(createdAt.seconds * 1000 + createdAt.nanoseconds / 1e6);
 
-  const options = {
+  const options: any = {
     month: "long",
     day: "numeric",
     hour: "numeric",
@@ -23,12 +24,31 @@ const Card = (props: any) => {
       refreshScreen: props.refreshScreen,
     });
   };
+  const htmlContent = `
+  <style>
+    body {
+      font-size: 60px;
+    }
+    html {
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+  ${props?.data?.data}
+`;
 
   return (
     <TouchableOpacity style={styles.card} onPress={handlePress}>
-      <Text style={{ color: "#444444" }} numberOfLines={4} ellipsizeMode="tail">
-        {props.data.data}
-      </Text>
+      <WebView
+        originWhitelist={["*"]}
+        source={{ html: htmlContent }}
+        style={{
+          flex: 1,
+          backgroundColor: "transparent",
+        }}
+        contentInset={{ top: 500, left: 100, bottom: 510, right: 10 }}
+      />
       <Text style={{ textAlign: "auto", fontSize: 10 }}>{`${
         formattedDate ? formattedDate : ""
       }`}</Text>
