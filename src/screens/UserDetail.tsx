@@ -1,22 +1,75 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from "react";
+import firestore from "@react-native-firebase/firestore";
 
-import { BackHandler, Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
-import useLocalStorageData from '../hooks/userAuth';
+import {
+  BackHandler,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import LinearGradient from "react-native-linear-gradient";
+import useLocalStorageData from "../hooks/userAuth";
+import FastImage from "react-native-fast-image";
+import SearchableDropdown from "react-native-searchable-dropdown";
+
+const Dropdown = ({ allUsers }: any) => {
+  const [selectedValue, setSelectedValue] = useState("");
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const navigation = useNavigation();
+
+  const onSearch = (query: any) => {
+    const filteredData = allUsers?.filter((user: any) =>
+      user.name.toLowerCase().includes(query.toLowerCase()),
+    );
+    setFilteredUsers(filteredData);
+  };
+
+  const handleSelect = (item: any) => {
+    console.log("item: ", item);
+    navigation.navigate("Home", {
+      email: item,
+    });
+  };
+
+  return (
+    <SearchableDropdown
+      onTextChange={onSearch}
+      onItemSelect={(item: any) => {
+        setSelectedValue(item);
+        handleSelect(item.name);
+      }}
+      containerStyle={{ padding: 5, marginTop: 10, width: "80%" }}
+      textInputStyle={{
+        padding: 12,
+        borderWidth: 1,
+        borderColor: "#ccc",
+        borderRadius: 5,
+      }}
+      itemStyle={{
+        padding: 10,
+        marginTop: 2,
+        backgroundColor: "transparent",
+        borderColor: "transparent",
+        borderWidth: 1,
+        borderRadius: 5,
+      }}
+      itemTextStyle={{ color: "#222" }}
+      itemsContainerStyle={{ maxHeight: 140 }}
+      items={filteredUsers}
+      placeholder="Impersonate"
+      resetValue={false}
+      underlineColorAndroid="transparent"
+    />
+  );
+};
 
 function UserDetail(props: any) {
   const navigation = useNavigation();
   const { clearUserData, getLocalData } = useLocalStorageData();
-  const [user, setUser] = useState<any>('');
-
-  const fetchData = async () => {
-    const user = await getLocalData();
-    setUser(user);
-    if (!user) {
-      props.navigation.navigate("Login");
-    }
-  };
+  const [user, setUser] = useState<any>("");
 
   const Logout = useCallback(async () => {
     await clearUserData();
@@ -24,8 +77,30 @@ function UserDetail(props: any) {
     props.navigation.navigate("Login");
   }, []);
 
+  const [allUsers, setAllUsers] = useState([]);
+
+  const fetchUsers = async () => {
+    const user = await getLocalData();
+    setUser(user);
+    if (!user) {
+      props.navigation.navigate("Login");
+    }
+    try {
+      const querySnapshot = await firestore().collection("Users").get();
+
+      const users: any = querySnapshot.docs.map(doc => {
+        const userData = doc.data();
+        return { id: doc.id, name: userData.email };
+      });
+
+      setAllUsers(users);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
   useEffect(() => {
-    fetchData();
+    fetchUsers();
     if (Platform.OS === "android") {
       BackHandler.addEventListener("hardwareBackPress", handleBackPressed);
 
@@ -42,58 +117,64 @@ function UserDetail(props: any) {
     }
     return false;
   };
-
   return (
-    <LinearGradient colors={['#FFF', '#FFF0F0', '#FEBDBD']} style={styles.main1}>
+    <LinearGradient
+      colors={["#FFF", "#FFF0F0", "#FEBDBD"]}
+      style={styles.main1}>
       <View style={styles.main}>
         {user && (
           <>
-            <Image
+            <FastImage
               style={{ width: 150, height: 150, borderRadius: 100 }}
-              source={{ uri: user.photo }}
+              source={{ uri: user.photo, cache: FastImage.cacheControl.web }}
+              resizeMode={FastImage.resizeMode.contain}
             />
             <Text style={styles.text}>{user.name}</Text>
-            <Text style={{ fontSize: 20, marginTop: 10 }} >{user.id}</Text>
+            <Text style={{ fontSize: 20, marginTop: 10 }}>{user.id}</Text>
             <Text style={{ fontSize: 20, marginTop: 10 }}>{user.email}</Text>
+            <Dropdown allUsers={allUsers} />
           </>
-        )
-        }
-      </View >
-      <TouchableOpacity onPress={Logout} style={{
-        backgroundColor: 'red',
-        marginBottom: 150,
-        alignItems: 'center',
-        width: '40%',
-        alignSelf: 'center',
-        padding: 10,
-        borderRadius: 10
-      }}>
-        <Text style={{
-          color: 'white',
-          fontSize: 20,
-        }}>
-          Logout
-        </Text>
-      </TouchableOpacity>
+        )}
+        <TouchableOpacity
+          onPress={Logout}
+          style={{
+            backgroundColor: "red",
+            marginTop: 100,
+            alignItems: "center",
+            width: "40%",
+            alignSelf: "center",
+            padding: 10,
+            borderRadius: 10,
+          }}>
+          <Text
+            style={{
+              color: "white",
+              fontSize: 20,
+              position: "relative",
+            }}>
+            Logout
+          </Text>
+        </TouchableOpacity>
+      </View>
     </LinearGradient>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   main: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
     paddingTop: 100,
   },
   main1: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   text: {
     fontSize: 30,
     marginTop: 20,
-    color: 'black'
-  }
+    color: "black",
+  },
 });
 
 export default UserDetail;

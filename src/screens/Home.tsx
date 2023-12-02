@@ -2,14 +2,29 @@ import { useNavigation } from "@react-navigation/native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import firestore from "@react-native-firebase/firestore";
-import { Alert, BackHandler, Image, Platform, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  BackHandler,
+  Image,
+  Platform,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import Card from "../components/Card";
 import CustomButton from "../components/CustomButton";
 import sendToast from "../components/Toast";
 import useLocalStorageData from "../hooks/userAuth";
+import FastImage from "react-native-fast-image";
+import { get, isEmpty } from "lodash";
 
 function DetailsScreen(props: any) {
+  const hasImpersonate = get(props, "route.params.email", "");
   const { clearUserData, getLocalData } = useLocalStorageData();
   const navigation = useNavigation();
   const [signed, setSignIn] = useState<any>("");
@@ -19,10 +34,6 @@ function DetailsScreen(props: any) {
   const [refreshing, setRefreshing] = React.useState(false);
 
   const saveNotes = async () => {
-    if (value.length < 1) {
-      sendToast({ type: "info", text: "Your note is Empty!" });
-      return;
-    }
     try {
       const countersCollection = firestore().collection("counters");
 
@@ -52,8 +63,12 @@ function DetailsScreen(props: any) {
       const newNoteData = newNoteSnapshot.data();
 
       setNotes((prevNotes: any) => [newNoteData, ...prevNotes]);
+      navigation.navigate("NotesDetail", {
+        noteData: newNoteData,
+        refreshScreen: refreshScreen,
+      });
 
-      sendToast({ type: "info", text: "Note added successfully!" });
+      // sendToast({ type: "info", text: "Note added successfully!" });
       onChangeText("");
     } catch (error) {
       console.error("Error adding note:", error);
@@ -61,8 +76,13 @@ function DetailsScreen(props: any) {
     }
   };
 
-  const fetchData = async () => {
-    const user = await getLocalData();
+  const fetchData = async (hasImpersonates: any) => {
+    let user = await getLocalData();
+
+    if (hasImpersonates) {
+      setSignIn({ ...user, email: hasImpersonates });
+      user.email = hasImpersonates;
+    }
 
     const notes = await firestore()
       .collection("Notes")
@@ -79,7 +99,7 @@ function DetailsScreen(props: any) {
   };
 
   useEffect(() => {
-    fetchData();
+    fetchData(hasImpersonate);
     if (Platform.OS === "android") {
       BackHandler.addEventListener("hardwareBackPress", HandleBackPressed);
 
@@ -87,7 +107,7 @@ function DetailsScreen(props: any) {
         BackHandler.removeEventListener("hardwareBackPress", HandleBackPressed);
       };
     }
-  }, [getLocalData, props.navigation]);
+  }, [props.navigation]);
 
   const HandleBackPressed = () => {
     const currentTime = new Date().getTime();
@@ -103,16 +123,24 @@ function DetailsScreen(props: any) {
     return true;
   };
 
-  const Logout = useCallback(async () => {
-    await clearUserData();
-    setSignIn(undefined);
-    props.navigation.navigate("Login");
-  }, []);
+  const refreshScreen = useCallback(() => {
+    fetchData(hasImpersonate);
+  }, [hasImpersonate]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      refreshScreen();
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [navigation, refreshScreen]);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     setTimeout(() => {
-      fetchData();
+      fetchData(hasImpersonate);
       setRefreshing(false);
     }, 2000);
   }, []);
@@ -122,10 +150,15 @@ function DetailsScreen(props: any) {
       if (signed?.photo) {
         navigation.setOptions({
           headerRight: () => (
-            <TouchableOpacity onPress={() => props.navigation.navigate("UserDetail")}>
-              <Image
+            <TouchableOpacity
+              onPress={() => props.navigation.navigate("UserDetail")}>
+              <FastImage
                 style={{ width: 40, height: 40, borderRadius: 20 }}
-                source={{ uri: signed.photo }}
+                source={{
+                  uri: signed.photo,
+                  cache: FastImage.cacheControl.web,
+                }}
+                resizeMode={FastImage.resizeMode.contain}
               />
             </TouchableOpacity>
           ),
@@ -135,6 +168,19 @@ function DetailsScreen(props: any) {
 
     updateNavigationOptions();
   }, [navigation, signed]);
+
+  const getGreetingBasedOnTime = () => {
+    const hour = new Date().getHours();
+
+    if (hour < 12) {
+      return "Good Morning";
+    } else if (hour < 18) {
+      return "Good Afternoon";
+    } else {
+      return "Good Evening";
+    }
+  };
+  const greeting = getGreetingBasedOnTime();
 
   return (
     <LinearGradient
@@ -152,8 +198,8 @@ function DetailsScreen(props: any) {
           <>
             <Text style={styles.text}>
               {"\n"}
-              <Text style={styles.bold}>Hi </Text>
-              {signed?.name}
+              <Text style={styles.bold}>Hi their </Text>
+              {greeting}
             </Text>
             <Text style={styles.text}>
               <Text style={styles.bold}>All your notes from </Text>
@@ -164,12 +210,12 @@ function DetailsScreen(props: any) {
         {notes && (
           <View style={styles.cardContainer}>
             {notes?.map((note: any, index: any) => (
-              <Card key={index} data={note} />
+              <Card key={index} data={note} refreshScreen={refreshScreen} />
             ))}
           </View>
         )}
       </ScrollView>
-      <TextInput
+      {/* <TextInput
         placeholderTextColor="#000"
         style={[
           styles.textArea,
@@ -191,8 +237,12 @@ function DetailsScreen(props: any) {
             />
           </View>
         </>
-      )}
-
+      )} */}
+      <TouchableOpacity
+        style={styles.floatingButton}
+        onPress={() => saveNotes()}>
+        <Text style={styles.buttonText}>+</Text>
+      </TouchableOpacity>
     </LinearGradient>
   );
 }
@@ -200,6 +250,23 @@ function DetailsScreen(props: any) {
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
+  },
+  buttonText: {
+    fontSize: 30,
+    color: "white",
+    marginBottom: 3,
+  },
+  floatingButton: {
+    position: "absolute",
+    right: 30,
+    bottom: 30,
+    width: 60,
+    height: 60,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#2FB031",
+    borderRadius: 30,
+    elevation: 5,
   },
   input: {
     margin: 12,
