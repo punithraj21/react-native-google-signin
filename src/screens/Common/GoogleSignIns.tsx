@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect } from "react";
 
+import firestore from "@react-native-firebase/firestore";
+import { get } from "lodash";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import Icon from "react-native-vector-icons/AntDesign";
-import useGoogleLogin from "../hooks/useGoogleLogin";
-import useLocalStorageData from "../hooks/userAuth";
-import { get } from "lodash";
-import firestore from "@react-native-firebase/firestore";
+import useGoogleLogin from "../../hooks/useGoogleLogin";
+import useLocalStorageData from "../../hooks/useUserAuth";
+import { USERS } from "../../utils/collections";
 
 function GoogleSignIns(props: any) {
   const { onGoogleButtonPress } = useGoogleLogin();
@@ -27,21 +28,27 @@ function GoogleSignIns(props: any) {
     const email: any = get(
       googleAuthResult,
       "additionalUserInfo.profile.email",
+      "",
     );
-    const uid = get(googleAuthResult, "user.uid");
+    const uid = get(googleAuthResult, "user.uid", "");
+    const photo = get(
+      googleAuthResult,
+      "additionalUserInfo.profile.picture",
+      "",
+    );
 
     const userExist = await firestore()
-      .collection("Users")
+      .collection(USERS)
       .where("email", "==", email)
       .get();
 
     const isUserExist = get(userExist, "_docs", []);
 
     if (isUserExist.length < 1) {
-      console.log(email);
-      await firestore().collection("Users").add({
+      await firestore().collection(USERS).add({
         uid,
         email,
+        photo,
         createdAt: new Date(),
       });
     }

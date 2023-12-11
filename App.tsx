@@ -2,15 +2,23 @@ import React from "react";
 
 import { GoogleSignin } from "@react-native-community/google-signin";
 import { NavigationContainer } from "@react-navigation/native";
-import GoogleSignIns from "./src/screens/GoogleSignIns";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import DetailsScreen from "./src/screens/Home";
+import GoogleSignIns from "./src/screens/Common/GoogleSignIns";
+import {
+  createNativeStackNavigator,
+  TransitionPresets,
+} from "@react-navigation/native-stack";
+import DetailsScreen from "./src/screens/Notes/Notes";
 import Toast from "react-native-toast-message";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
 import { Text } from "react-native";
-import NotesDetail from "./src/screens/NotesDetail";
-import UserDetail from "./src/screens/UserDetail";
+import NotesDetail from "./src/screens/Notes/NotesDetail";
+import UserDetail from "./src/screens/Common/UserDetail";
 import { MenuProvider } from "react-native-popup-menu";
+import { NativeBaseProvider } from "native-base";
+import ChatList from "./src/screens/Chats/ChatList";
+import Home from "./src/screens/Common/Home";
+import CreateChatForm from "./src/screens/Chats/CreateChatForm";
+import Messages from "./src/screens/Chats/Messages";
 
 GoogleSignin.configure({
   webClientId:
@@ -24,7 +32,7 @@ function HomeScreen({ navigation }: any) {
 function App(): JSX.Element {
   const Stack = createNativeStackNavigator();
   const toastConfig = {
-    successs: ({ text1, props, ...rest }: any) => (
+    success: ({ text1, props, ...rest }: any) => (
       <View
         style={{
           height: 40,
@@ -46,51 +54,111 @@ function App(): JSX.Element {
 
   return (
     <>
-      <MenuProvider>
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName="Login">
-            <Stack.Screen
-              name="Login"
-              component={HomeScreen}
-              options={{
-                headerShown: false,
-              }}
-            />
-            <Stack.Screen
-              name="Home"
-              options={{
-                headerBackVisible: false,
-                headerTitleAlign: "left",
-                headerTitleStyle: { color: "#444444" },
-                headerStyle: {
-                  backgroundColor: "#fff",
-                },
-                title: "My Library",
-              }}
-              component={DetailsScreen}
-            />
-            <Stack.Screen
-              name="NotesDetail"
-              options={{
-                title: "Details",
-                headerTitleAlign: "center",
-                headerTitleStyle: { color: "#444444" },
-              }}
-              component={NotesDetail}
-            />
-            <Stack.Screen
-              name="UserDetail"
-              options={{
-                title: "User Detail",
-                headerTitleAlign: "center",
-                headerTitleStyle: { color: "#444444" },
-              }}
-              component={UserDetail}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-        <Toast config={toastConfig} />
-      </MenuProvider>
+      <NativeBaseProvider>
+        <MenuProvider>
+          <NavigationContainer>
+            <Stack.Navigator
+              initialRouteName="Login"
+              screenOptions={{
+                animation: "fade_from_bottom",
+              }}>
+              <Stack.Screen
+                name="Login"
+                component={HomeScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="Notes"
+                options={{
+                  headerBackVisible: true,
+                  headerTitleAlign: "center",
+                  headerTitleStyle: { color: "#444444" },
+                  headerStyle: {
+                    backgroundColor: "#fff",
+                  },
+                  title: "My Library",
+                }}
+                component={DetailsScreen}
+              />
+              <Stack.Screen
+                name="Chats"
+                options={{
+                  headerBackVisible: true,
+                  headerTitleAlign: "center",
+                  headerTitleStyle: { color: "#444444" },
+                  headerStyle: {
+                    backgroundColor: "#fff",
+                  },
+                  title: "Chat List",
+                }}
+                component={ChatList}
+              />
+              <Stack.Screen
+                name="CreateChat"
+                options={{
+                  headerBackVisible: true,
+                  headerTitleAlign: "center",
+                  headerTitleStyle: { color: "#444444" },
+                  headerStyle: {
+                    backgroundColor: "#fff",
+                  },
+                  title: "Chat Form",
+                }}
+                component={CreateChatForm}
+              />
+              <Stack.Screen
+                name="Messages"
+                options={{
+                  headerTitleAlign: "center",
+                  headerTitleStyle: {
+                    fontWeight: "bold",
+                    fontSize: 18,
+                    color: "white",
+                  },
+                  headerStyle: {
+                    backgroundColor: "#7e8de4",
+                  },
+                }}
+                component={Messages}
+              />
+              <Stack.Screen
+                name="Home"
+                options={{
+                  headerBackVisible: false,
+                  headerTitleAlign: "left",
+                  headerTitleStyle: { color: "#444444" },
+                  headerStyle: {
+                    backgroundColor: "#fff",
+                  },
+                  title: "My Utilities",
+                }}
+                component={Home}
+              />
+              <Stack.Screen
+                name="NotesDetail"
+                options={{
+                  title: "Details",
+                  headerTitleAlign: "center",
+                  headerTitleStyle: { color: "#444444" },
+                }}
+                component={NotesDetail}
+              />
+              <Stack.Screen
+                name="UserDetail"
+                options={{
+                  title: "User Detail",
+                  headerTitleAlign: "center",
+                  headerTitleStyle: { color: "#444444" },
+                }}
+                component={UserDetail}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+          <Toast config={toastConfig} />
+        </MenuProvider>
+      </NativeBaseProvider>
     </>
   );
 }

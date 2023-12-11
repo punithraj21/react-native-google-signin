@@ -25,6 +25,7 @@ import {
   MenuTrigger,
 } from "react-native-popup-menu";
 import { get } from "lodash";
+import { NOTES } from "../../utils/collections";
 
 const NotesDetail = ({ route }: any) => {
   const { noteData } = route.params;
@@ -33,7 +34,7 @@ const NotesDetail = ({ route }: any) => {
 
   const handleDelete = async () => {
     try {
-      const notesCollection = firebase.firestore().collection("Notes");
+      const notesCollection = firebase.firestore().collection(NOTES);
 
       const querySnapshot = await notesCollection
         .where("id", "==", noteData.id)
@@ -66,7 +67,7 @@ const NotesDetail = ({ route }: any) => {
     ]);
   };
 
-  const stripHtmlTags = html => {
+  const stripHtmlTags = (html: any) => {
     // Replace line breaks, paragraph, and list tags with appropriate text
     let text = html
       .replace(/<br\s*\/?>/gi, "\n")
@@ -110,7 +111,6 @@ const NotesDetail = ({ route }: any) => {
 
   const handleCopyText = () => {
     const strip = stripHtmlTags(editedData);
-    console.log("editedData: ", editedData);
     Clipboard.setString(strip);
     ToastAndroid.show("Text copied to clipboard", ToastAndroid.SHORT);
   };
@@ -143,7 +143,7 @@ const NotesDetail = ({ route }: any) => {
 
   const updateFirebase = async (data: string) => {
     try {
-      const notesCollection = firebase.firestore().collection("Notes");
+      const notesCollection = firebase.firestore().collection(NOTES);
 
       const querySnapshot = await notesCollection
         .where("id", "==", noteData.id)
@@ -264,7 +264,7 @@ const TextEditor = ({ data, updateFirebase, setEditedData }: any) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      setEditorFocused(true);
+      setEditorFocused(false);
 
       return () => {
         setEditorFocused(false);

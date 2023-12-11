@@ -11,14 +11,14 @@ import {
   View,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
-import useLocalStorageData from "../hooks/userAuth";
+import useLocalStorageData from "../../hooks/useUserAuth";
 import FastImage from "react-native-fast-image";
 import SearchableDropdown from "react-native-searchable-dropdown";
+import { updateLSData } from "../../hooks/useLocalStorage";
 
 const Dropdown = ({ allUsers }: any) => {
-  const [selectedValue, setSelectedValue] = useState("");
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const navigation = useNavigation();
+  const navigation: any = useNavigation();
 
   const onSearch = (query: any) => {
     const filteredData = allUsers?.filter((user: any) =>
@@ -28,9 +28,15 @@ const Dropdown = ({ allUsers }: any) => {
   };
 
   const handleSelect = (item: any) => {
-    console.log("item: ", item);
-    navigation.navigate("Home", {
-      email: item,
+    const userData = {
+      id: item.id,
+      name: item.name,
+      email: item.name,
+      photo: item.photo,
+    };
+    updateLSData("user", userData);
+    navigation.navigate("Notes", {
+      email: item.name,
     });
   };
 
@@ -38,8 +44,7 @@ const Dropdown = ({ allUsers }: any) => {
     <SearchableDropdown
       onTextChange={onSearch}
       onItemSelect={(item: any) => {
-        setSelectedValue(item);
-        handleSelect(item.name);
+        handleSelect(item);
       }}
       containerStyle={{ padding: 5, marginTop: 10, width: "80%" }}
       textInputStyle={{
@@ -90,7 +95,7 @@ function UserDetail(props: any) {
 
       const users: any = querySnapshot.docs.map(doc => {
         const userData = doc.data();
-        return { id: doc.id, name: userData.email };
+        return { id: doc.id, name: userData.email, photo: userData.photo };
       });
 
       setAllUsers(users);
