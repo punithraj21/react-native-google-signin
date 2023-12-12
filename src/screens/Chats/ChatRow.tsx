@@ -25,7 +25,6 @@ export const ChatRow = ({
   userId,
 }: any) => {
   const navigation: any = useNavigation();
-  console.log("image: ", image);
 
   const onPressWrapper = useCallback(() => {
     navigation.navigate("Messages", {

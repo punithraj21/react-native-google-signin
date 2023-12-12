@@ -61,7 +61,6 @@ const ChatList = () => {
   }, []);
   const Separator = () => <View style={styles.separator} />;
   const renderItem = useCallback(({ item }: { item: any }) => {
-    console.log("item: ", item);
     return (
       <View>
         <ChatRow {...item} />
