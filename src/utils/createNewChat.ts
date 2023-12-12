@@ -61,6 +61,8 @@ export const createNewThread = async ({
   roomKind,
   roomType,
   roomTypeDetail,
+  image,
+  name,
 }: any) => {
   try {
     const newThreadRef = await firestore().collection(GROUPS).doc();
@@ -79,9 +81,10 @@ export const createNewThread = async ({
       executives: initialExecutives,
       enteredUser: enteredUser,
       totalMember: 0,
-
+      image: image || null,
+      createdBy: name,
       latestMessage: {
-        text: `${roomKind} Last Message`,
+        text: `${name} Created Group`,
         createdAt: new Date(),
       },
     };

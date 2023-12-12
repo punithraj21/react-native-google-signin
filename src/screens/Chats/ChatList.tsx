@@ -1,34 +1,24 @@
+import { useNavigation } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   FlatList,
   SafeAreaView,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import useProBackHandler from "../../hooks/useProBackHandler";
-import { StyleSheet } from "react-native";
-import { createNewThread } from "../../utils/createNewChat";
 import { listenToFreeThreads } from "../../utils/messages";
 import { ChatRow } from "./ChatRow";
 
 const ChatList = () => {
   const [groups, setGroups] = useState<any>([]);
   useProBackHandler();
+  const navigation: any = useNavigation();
+
   const createNewChat = () => {
-    try {
-      createNewThread({
-        uid: "123",
-        roomName: `Test`,
-        mainIntroduction: "-",
-        subIntroduction: "-",
-        roomKind: "-",
-        roomType: "Group",
-        roomTypeDetail: "Description",
-      });
-    } catch (e) {
-      console.error("Error fetching:", e);
-    }
+    navigation.navigate("CreateChat");
   };
 
   useEffect(() => {
@@ -71,6 +61,7 @@ const ChatList = () => {
   }, []);
   const Separator = () => <View style={styles.separator} />;
   const renderItem = useCallback(({ item }: { item: any }) => {
+    console.log("item: ", item);
     return (
       <View>
         <ChatRow {...item} />
@@ -98,6 +89,7 @@ const ChatList = () => {
     </>
   );
 };
+
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,

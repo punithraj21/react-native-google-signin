@@ -1,19 +1,6 @@
 import storage from "@react-native-firebase/storage";
 import ImageResizer from "react-native-image-resizer";
-import firestore from "@react-native-firebase/firestore";
-import { ERRORS } from "./collections";
-
-const logErrorToFirestore = async (error: any) => {
-  try {
-    await firestore().collection(ERRORS).add({
-      error: error.message,
-      code: error.code,
-      timestamp: firestore.FieldValue.serverTimestamp(),
-    });
-  } catch (firestoreError) {
-    console.error("Error writing to Firestore: ", firestoreError);
-  }
-};
+import logErrorToFirestore from "./logErrorToFirestore";
 
 const compressImage = async (
   uri: any,
@@ -40,7 +27,6 @@ const compressImage = async (
 };
 const uploadImage = async (imageUri: any, user: any) => {
   const filename = `${new Date().getTime()}-${user.id}`;
-
   try {
     const compressedUri = await compressImage(
       imageUri,
@@ -56,7 +42,7 @@ const uploadImage = async (imageUri: any, user: any) => {
     const url = await storage().ref(filename).getDownloadURL();
     return url;
   } catch (e) {
-    console.error(e);
+    console.log("Error: Uploading Image", e);
     logErrorToFirestore(e);
     return null;
   }

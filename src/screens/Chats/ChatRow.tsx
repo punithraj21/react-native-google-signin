@@ -3,6 +3,8 @@ import React, { useCallback } from "react";
 
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import formattedDate from "../../utils/formateDate";
+import FastImage from "react-native-fast-image";
+import { Image } from "native-base";
 
 export const Separator = () => <View style={styles.separator} />;
 
@@ -15,6 +17,7 @@ export const ChatRow = ({
   subIntroduction,
   executives,
   enteredUser,
+  image,
   roomType,
   roomKind,
   unread,
@@ -22,6 +25,7 @@ export const ChatRow = ({
   userId,
 }: any) => {
   const navigation: any = useNavigation();
+  console.log("image: ", image);
 
   const onPressWrapper = useCallback(() => {
     navigation.navigate("Messages", {
@@ -47,7 +51,6 @@ export const ChatRow = ({
     roomTypeDetail,
     subIntroduction,
   ]);
-
   const formatteDate = formattedDate(latestMessage.createdAt);
   return (
     <Pressable onPress={onPressWrapper}>
@@ -60,7 +63,18 @@ export const ChatRow = ({
             justifyContent: "space-between",
           }}>
           <View style={{ alignSelf: "center" }}>
-            <Text style={{}}>{"logo"}</Text>
+            <FastImage
+              style={{ width: 40, height: 40, borderRadius: 20 }}
+              source={{
+                uri: image,
+                cache: FastImage.cacheControl.web,
+              }}
+              resizeMode={FastImage.resizeMode.contain}
+            />
+            {/* <Image
+              source={image}
+              style={{ width: 50, height: 50, borderRadius: 25 }}
+            /> */}
           </View>
           <View
             style={{
@@ -75,7 +89,7 @@ export const ChatRow = ({
                   flexDirection: "row",
                   alignItems: "flex-start",
                 }}>
-                <Text style={styles.contentText}>{"MainIntroduction"}</Text>
+                <Text style={styles.contentText}>{name}</Text>
               </View>
               <View>
                 <Text>{latestMessage.text}</Text>

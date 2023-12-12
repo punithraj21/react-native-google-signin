@@ -128,7 +128,7 @@ export default ({ route }: any) => {
 
   useEffect(() => {
     navigation.setOptions({
-      title: "parsedName",
+      title: name,
     });
   }, [name, navigation, parsedName, toggleModal]);
 

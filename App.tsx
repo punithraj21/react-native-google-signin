@@ -2,23 +2,19 @@ import React from "react";
 
 import { GoogleSignin } from "@react-native-community/google-signin";
 import { NavigationContainer } from "@react-navigation/native";
-import GoogleSignIns from "./src/screens/Common/GoogleSignIns";
-import {
-  createNativeStackNavigator,
-  TransitionPresets,
-} from "@react-navigation/native-stack";
-import DetailsScreen from "./src/screens/Notes/Notes";
-import Toast from "react-native-toast-message";
-import { Pressable, View } from "react-native";
-import { Text } from "react-native";
-import NotesDetail from "./src/screens/Notes/NotesDetail";
-import UserDetail from "./src/screens/Common/UserDetail";
-import { MenuProvider } from "react-native-popup-menu";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NativeBaseProvider } from "native-base";
+import { Text, View } from "react-native";
+import { MenuProvider } from "react-native-popup-menu";
+import Toast from "react-native-toast-message";
 import ChatList from "./src/screens/Chats/ChatList";
-import Home from "./src/screens/Common/Home";
 import CreateChatForm from "./src/screens/Chats/CreateChatForm";
 import Messages from "./src/screens/Chats/Messages";
+import GoogleSignIns from "./src/screens/Common/GoogleSignIns";
+import Home from "./src/screens/Common/Home";
+import UserDetail from "./src/screens/Common/UserDetail";
+import DetailsScreen from "./src/screens/Notes/Notes";
+import NotesDetail from "./src/screens/Notes/NotesDetail";
 
 GoogleSignin.configure({
   webClientId:
@@ -60,7 +56,7 @@ function App(): JSX.Element {
             <Stack.Navigator
               initialRouteName="Login"
               screenOptions={{
-                animation: "fade_from_bottom",
+                animation: "flip",
               }}>
               <Stack.Screen
                 name="Login"
